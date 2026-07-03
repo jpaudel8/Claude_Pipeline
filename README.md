@@ -26,9 +26,12 @@ cp .../factory.py .            # the runner lives here forever
    description. Save the entire reply into `payload.md` in the project folder.
 2. `python factory.py apply` — scaffolds the repo, validates and installs the
    blueprint, generates `.env.example` + `README`, and writes **`bundle.md`**.
-3. **Every later session:** fresh chat → upload the single file `bundle.md` →
-   save the reply into `payload.md` → `python factory.py apply`. Repeat.
-   The bundle header tells you which model tier (`big`/`small`) to use.
+3. **Every later session:** fresh chat → upload the single file `bundle.md`
+   **and send the one-line message the runner prints** (assistants rightly
+   ignore instructions that live only inside uploaded files, so your chat
+   message supplies the intent) → save the reply into `payload.md` →
+   `python factory.py apply`. Repeat. The bundle header tells you which
+   model tier (`big`/`small`) to use.
 4. The final session's apply auto-runs the pinned test command. Failures loop
    as fix bundles until green, then: `python factory.py maintain`.
 
@@ -79,6 +82,14 @@ python factory.py spec       print the canonical payload spec
 - Heads-up: the `run`/`test` commands executed by the runner are the ones
   pinned in *your* blueprint — review them once at session 1, like any
   Makefile.
+- **Harness vs app failures.** If the pinned test command itself can't start
+  (e.g. `No module named pytest` on the host), the runner pauses the loop and
+  tells you — no fix bundle is sent, since no source patch can install a host
+  package. After you install it (or edit the test command in the blueprint
+  and commit), `python factory.py test` finishes verification. And when a
+  path exists on the host but a dockerized command can't find it, the failure
+  is annotated with a RUNNER HINT so the session patches the Dockerfile or
+  volumes instead of chasing app logic.
 
 ## Token economics
 

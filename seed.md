@@ -102,6 +102,11 @@ nothing else; the runner shows them to the user and retries.
   from explicit specs) and design-heavy ones `"model": "big"`; the user routes
   each bundle to a cheaper or stronger model accordingly.
 - `acceptance` items must be verifiable by the pinned `test` command alone.
+- The `test` command must work on a bare checkout: use only the pinned
+  runtime (e.g. stdlib `python tests/run.py`), or run inside the app's own
+  container AND guarantee the test files are visible there (volume-mount the
+  repo in compose or COPY tests/ in the Dockerfile). Never assume
+  host-installed extras (pytest, requests, ...).
 - `env`: names only. Never invent or output secret values anywhere.
 - The runner auto-generates `.env.example` and `README.md` from your JSON —
   do not emit them.
